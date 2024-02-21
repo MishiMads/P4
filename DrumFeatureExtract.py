@@ -54,3 +54,4 @@ plt.ylabel('Normalized Spectral Bandwidth')
 plt.grid(True)
 plt.show()
 
+bæh = 0
