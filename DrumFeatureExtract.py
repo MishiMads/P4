@@ -12,7 +12,7 @@ import pandas
 
 directories = [
     '/Users/mads/Desktop/MED5/A_kicks/subdir1',
-    'Jakob',
+    '/Users/jakob/Desktop/A_kicks/subdir1',
     'Anita',
     'Ronja',
     'Anton',
