@@ -15,7 +15,7 @@ directories = [
     '/Users/jakob/Desktop/A_kicks/subdir1',
     'Anita',
     'Ronja',
-    'Anton',
+    'C:\Mediologi\P4\Rapport\A_kicks\subdir1',
 ]
 
 for directory in directories:
