@@ -5,12 +5,28 @@ import matplotlib.pyplot as plt
 import pandas
 
 
-drumFolder = '/Users/mads/Desktop/MED5/A_kicks/subdir1'
+#drumFolder = '/Users/mads/Desktop/MED5/A_kicks/subdir1'
 
 #drumSample = '/Users/mads/Desktop/MED5/A_kicks/subdir1/000000-KICK_ARBLICK.wav'
 #y, sr = librosa.load(drumSample)
 
+directories = [
+    '/Users/mads/Desktop/MED5/A_kicks/subdir1',
+    'Jakob',
+    'Anita',
+    'Ronja',
+    'Anton',
+]
+
+for directory in directories:
+    if os.path.exists(directory):
+        drumFolder = directory
+    else:
+        print('No Bueno')
+
+
 features_list = []
+
 
 # Iterate over each file in the folder
 for filename in os.listdir(drumFolder):
@@ -23,6 +39,7 @@ for filename in os.listdir(drumFolder):
         # Extract features
         spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr).mean()
         spectral_bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr).mean()
+        spectral_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr).mean()
         zero_crossing_rate = librosa.feature.zero_crossing_rate(y).mean()
         rms_energy = librosa.feature.rms(y=y).mean()
 
@@ -31,6 +48,7 @@ for filename in os.listdir(drumFolder):
             'Filename': filename,
             'Spectral Centroid': spectral_centroid,
             'Spectral Bandwidth': spectral_bandwidth,
+            'Spectral Rolloff': spectral_rolloff,
             'Zero Crossing Rate': zero_crossing_rate,
             'RMS Energy': rms_energy
         })
@@ -54,4 +72,6 @@ plt.ylabel('Normalized Spectral Bandwidth')
 plt.grid(True)
 plt.show()
 
-bæh = 0
+
+for feature in features_list:
+    print(feature)
