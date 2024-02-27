@@ -3,12 +3,14 @@ import os
 import librosa.feature
 import matplotlib.pyplot as plt
 import pandas
+#import SoundScript
 
 
 #drumFolder = '/Users/mads/Desktop/MED5/A_kicks/subdir1'
 
 #drumSample = '/Users/mads/Desktop/MED5/A_kicks/subdir1/000000-KICK_ARBLICK.wav'
 #y, sr = librosa.load(drumSample)
+
 
 directories = [
     '/Users/mads/Desktop/MED5/A_kicks/subdir1',
@@ -73,6 +75,19 @@ plt.grid(True)
 plt.show()
 
 
+# Here it prints out the feature values
+'''
 for feature in features_list:
     print(feature)
 plt.show()
+'''
+
+
+# Here it prints out the normalized features for each sound file
+for index, row in features_dataframe.iterrows():
+    print(f"Filename: {row['Filename']}")
+    print(f"  Normalized Spectral Centroid: {row['Spectral Centroid Normalized']}")
+    print(f"  Normalized Spectral Bandwidth: {row['Spectral Bandwidth Normalized']}")
+    print(f"  Normalized Zero Crossing Rate: {row.get('Zero Crossing Rate Normalized', 'N/A')}")
+    print(f"  Normalized RMS Energy: {row.get('RMS Energy Normalized', 'N/A')}")
+    print("-------------------------------------------------")

@@ -25,8 +25,13 @@
       </list>
     </option>
   </component>
+<<<<<<< Updated upstream
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+=======
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/DrumFeatureExtract.py" root0="FORCE_HIGHLIGHTING" />
+>>>>>>> Stashed changes
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -118,14 +123,19 @@
       <workItem from="1708505163097" duration="3680000" />
       <workItem from="1708608234762" duration="5000" />
       <workItem from="1708608323422" duration="610000" />
+<<<<<<< Updated upstream
       <workItem from="1708936224240" duration="1566000" />
 <<<<<<< Updated upstream
       <workItem from="1708938415393" duration="3896000" />
       <workItem from="1708943245728" duration="710000" />
 =======
+<<<<<<< Updated upstream
 =======
       <workItem from="1708505163097" duration="367000" />
       <workItem from="1708936170832" duration="1712000" />
+>>>>>>> Stashed changes
+=======
+      <workItem from="1708936224240" duration="4597000" />
 >>>>>>> Stashed changes
 >>>>>>> Stashed changes
     </task>
