@@ -35,4 +35,20 @@ sound11 = SoundFile(r'C:\Users\jakob\Desktop\JakobLytteLyde\004411-rdd_kick728.w
 
 directory = r'C:\Users\jakob\Desktop\JakobLytteLyde'
 
-bruhListe = []
+bruhListe = [sound1, sound2, sound3, sound4, sound5, sound6, sound7, sound8, sound9, sound10, sound11]
+
+
+def plot_sound_characteristics(sound_files, feature1, feature2):
+    plt.figure(figsize=(8, 6))
+    for sound in sound_files:
+        plt.scatter(getattr(sound, feature1), getattr(sound, feature2), label=sound.filename)
+    plt.xlabel(feature1)
+    plt.ylabel(feature2)
+    plt.title("Comparison of Sound Characteristics")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+
+
+plot_sound_characteristics(bruhListe, 'tight', 'muddy')
