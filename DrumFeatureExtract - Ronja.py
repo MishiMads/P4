@@ -12,15 +12,10 @@ import pandas
 
 directories = [
     '/Users/mads/Desktop/MED5/A_kicks/subdir1',
-    '/Users/jakob/Desktop/A_kicks/subdir1',
+    'Jakob',
     'Anita',
-<<<<<<< Updated upstream
-    'Ronja',
-    'C:\Mediologi\P4\Rapport\A_kicks\subdir1',
-=======
-    'C:/Users/rglus/OneDrive/Skrivebord/Kurser/4. semester/P4/Tilsendte materialer/A_kicks/subdir287',
+    'C:/Users/rglus/OneDrive/Skrivebord/Kurser/4. semester/P4/Tilsendte materialer/A_kicks/At variablere',
     'Anton',
->>>>>>> Stashed changes
 ]
 
 for directory in directories:
@@ -31,7 +26,6 @@ for directory in directories:
 
 
 features_list = []
-
 
 # Iterate over each file in the folder
 for filename in os.listdir(drumFolder):

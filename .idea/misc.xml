@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+<<<<<<< Updated upstream
   <component name="ProjectRootManager" version="2" project-jdk-name="Audioprocessing" project-jdk-type="Python SDK" />
+=======
+  <component name="Black">
+    <option name="sdkName" value="SP" />
+  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Sound" project-jdk-type="Python SDK" />
+>>>>>>> Stashed changes
 </project>
