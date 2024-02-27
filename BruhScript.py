@@ -3,7 +3,7 @@ import os
 import librosa.feature
 import matplotlib.pyplot as plt
 import pandas
-#import SoundScript
+import SoundScript
 
 
 #drumFolder = '/Users/mads/Desktop/MED5/A_kicks/subdir1'
@@ -76,11 +76,11 @@ plt.show()
 
 
 # Here it prints out the feature values
-'''
+"""
 for feature in features_list:
     print(feature)
 plt.show()
-'''
+"""
 
 
 # Here it prints out the normalized features for each sound file
