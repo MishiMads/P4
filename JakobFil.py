@@ -38,12 +38,15 @@ directory = r'C:\Users\jakob\Desktop\JakobLytteLyde'
 bruhListe = [sound1, sound2, sound3, sound4, sound5, sound6, sound7, sound8, sound9, sound10, sound11]
 
 
-def plot_sound_characteristics(sound_files, feature1, feature2):
+def plot_sound_characteristics(sound_files, feature1):
     plt.figure(figsize=(8, 6))
     for sound in sound_files:
-        plt.scatter(getattr(sound, feature1), getattr(sound, feature2), label=sound.filename)
+        y, sr = librosa.load(sound.path)
+        spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr).mean()
+
+        plt.scatter(getattr(sound, feature1), spectral_centroid, label=sound.filename)
     plt.xlabel(feature1)
-    plt.ylabel(feature2)
+    plt.ylabel("Specral Centroid")
     plt.title("Comparison of Sound Characteristics")
     plt.legend()
     plt.grid(True)
@@ -51,4 +54,4 @@ def plot_sound_characteristics(sound_files, feature1, feature2):
 
 
 
-plot_sound_characteristics(bruhListe, 'tight', 'muddy')
+plot_sound_characteristics(bruhListe, 'tight')
