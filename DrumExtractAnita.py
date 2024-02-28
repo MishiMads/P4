@@ -3,12 +3,9 @@ import os
 import librosa.feature
 import matplotlib.pyplot as plt
 import pandas
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
-
-#drumFolder = '/Users/mads/Desktop/MED5/A_kicks/subdir1'
-
-#drumSample = '/Users/mads/Desktop/MED5/A_kicks/subdir1/000000-KICK_ARBLICK.wav'
-#y, sr = librosa.load(drumSample)
 
 directories = [
     '/Users/mads/Desktop/MED5/A_kicks/subdir1',
@@ -70,12 +67,22 @@ plt.title('Normalized Spectral Centroid vs Spectral Bandwidth')
 plt.xlabel('Normalized Spectral Centroid')
 plt.ylabel('Normalized Spectral Bandwidth')
 plt.grid(True)
-#<<<<<<< Updated upstream
 plt.show()
 
 
 for feature in features_list:
     print(feature)
-#=======
 plt.show()
-#>>>>>>> Stashed changes
+
+# Apply PCA
+pca = PCA(n_components=2)  # Choose number of components
+principal_components = pca.fit_transform(features_dataframe.iloc[:, 4:])  # Use normalized features for PCA
+
+# Visualize data after PCA
+plt.figure(figsize=(8, 6))
+plt.scatter(principal_components[:, 0], principal_components[:, 1], c='b', marker='o', edgecolors='k')
+plt.title('PCA of Sound Files')
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.grid(True)
+plt.show()
