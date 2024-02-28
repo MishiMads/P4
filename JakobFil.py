@@ -3,6 +3,8 @@ import os
 import librosa.feature
 import matplotlib.pyplot as plt
 import pandas
+from sklearn.manifold import TSNE
+import numpy as np
 
 
 class SoundFile:
@@ -40,17 +42,31 @@ bruhListe = [sound1, sound2, sound3, sound4, sound5, sound6, sound7, sound8, sou
 
 def plot_sound_characteristics(sound_files, feature1):
     plt.figure(figsize=(8, 6))
+    s_features = np.zeros(5)
+
     for sound in sound_files:
         y, sr = librosa.load(sound.path)
         spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr).mean()
+        spectral_bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr).mean()
+        spectral_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr).mean()
+        zero_crossing_rate = librosa.feature.zero_crossing_rate(y).mean()
+        rms_energy = librosa.feature.rms(y=y).mean()
 
-        plt.scatter(getattr(sound, feature1), spectral_centroid, label=sound.filename)
-    plt.xlabel(feature1)
-    plt.ylabel("Specral Centroid")
-    plt.title("Comparison of Sound Characteristics")
-    plt.legend()
+        s_features = np.vstack((s_features, [spectral_centroid, spectral_bandwidth, spectral_rolloff, zero_crossing_rate, rms_energy]))
+    tsne = TSNE(n_components=2, perplexity=3, random_state=42)
+    features_embedded = tsne.fit_transform(s_features)
+
+    colors = ['blue' if getattr(sound, feature1) else 'red' for sound in sound_files]
+
+    plt.figure(figsize=(8, 6))
+    for i, sound in enumerate(bruhListe):
+        plt.scatter(features_embedded[i, 0], features_embedded[i, 1], c=colors[i], label=sound.filename)
+        plt.annotate(sound.filename, (features_embedded[i, 0], features_embedded[i, 1]))
+    plt.xlabel('t-SNE Component 1')
+    plt.ylabel('t-SNE Component 2')
+    plt.title('t-SNE Visualization compared with ' + feature1)
     plt.grid(True)
     plt.show()
 
 
-plot_sound_characteristics(bruhListe, 'tight')
+plot_sound_characteristics(bruhListe, 'muddy')
