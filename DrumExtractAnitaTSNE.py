@@ -3,7 +3,6 @@ import os
 import librosa.feature
 import matplotlib.pyplot as plt
 import pandas
-from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.manifold import TSNE
 
@@ -61,15 +60,15 @@ for feature in ['Spectral Centroid', 'Spectral Bandwidth', 'Zero Crossing Rate',
     max_value = features_dataframe[feature].max()
     features_dataframe[feature + ' Normalized'] = (features_dataframe[feature] - min_value) / (max_value - min_value)
 
-# Apply PCA
-pca = PCA(n_components=2)  # Choose number of components
-principal_components = pca.fit_transform(features_dataframe.iloc[:, 4:])  # Use normalized features for PCA
+# Apply t-SNE
+tsne = TSNE(n_components=2, perplexity=3, random_state=42)  # Choose number of components
+tsne_components = tsne.fit_transform(features_dataframe)
 
-# Visualize data after PCA
+# Visualize data after t-SNE
 plt.figure(figsize=(8, 6))
-plt.scatter(principal_components[:, 0], principal_components[:, 1], c='b', marker='o', edgecolors='k')
-plt.title('PCA of Sound Files')
-plt.xlabel('Principal Component 1')
-plt.ylabel('Principal Component 2')
+plt.scatter(tsne_components[:, 0], tsne_components[:, 1], c='b', marker='o', edgecolors='k')
+plt.title('t-SNE of Sound Files')
+plt.xlabel('t-SNE Component 1')
+plt.ylabel('t-SNE Component 2')
 plt.grid(True)
 plt.show()
