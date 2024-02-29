@@ -37,7 +37,7 @@ sound11 = SoundFile('JakobLyde/004411-rdd_kick728.wav', "sound11", False, False,
 
 directory = r'C:\Users\jakob\Desktop\JakobLytteLyde'
 
-bruhListe = [sound1, sound2, sound3, sound4, sound5, sound6, sound7, sound8, sound9, sound10, sound11]
+sound_list = [sound1, sound2, sound3, sound4, sound5, sound6, sound7, sound8, sound9, sound10, sound11]
 
 
 def plot_sound_characteristics(sound_files, feature1):
@@ -59,7 +59,7 @@ def plot_sound_characteristics(sound_files, feature1):
     colors = ['blue' if getattr(sound, feature1) else 'red' for sound in sound_files]
 
     plt.figure(figsize=(8, 6))
-    for i, sound in enumerate(bruhListe):
+    for i, sound in enumerate(sound_list):
         plt.scatter(features_embedded[i, 0], features_embedded[i, 1], c=colors[i], label=sound.filename)
         plt.annotate(sound.filename, (features_embedded[i, 0], features_embedded[i, 1]))
     plt.xlabel('t-SNE Component 1')
@@ -69,4 +69,5 @@ def plot_sound_characteristics(sound_files, feature1):
     plt.show()
 
 
-plot_sound_characteristics(bruhListe, 'muddy')
+for feature in ['bright', 'warm', 'boomy', 'tight', 'punchy', 'sharp', 'muddy', 'crisp', 'resonant', 'metallic']:
+    plot_sound_characteristics(sound_list, feature)
