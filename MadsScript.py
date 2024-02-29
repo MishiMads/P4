@@ -30,11 +30,11 @@ sound11 = SoundFile(path=r'JakobLyde/004411-rdd_kick728.wav', filename="sound11"
 
 
 
-bruhListe = [sound1, sound2, sound3, sound4, sound5, sound6, sound7, sound8, sound9, sound10, sound11]
+soundFileList = [sound1, sound2, sound3, sound4, sound5, sound6, sound7, sound8, sound9, sound10, sound11]
 
-# Assuming `bruhListe` is your list of SoundFile instances
+# Here we extract the features from the sound files and store them in a list of dictionaries called features_list
 features_list = []
-for sound in bruhListe:
+for sound in soundFileList:
     y, sr = librosa.load(sound.path)
     features = {
         'filename': sound.filename,
@@ -44,7 +44,7 @@ for sound in bruhListe:
         'zero_crossing_rate': librosa.feature.zero_crossing_rate(y).mean(),
         'rms_energy': librosa.feature.rms(y=y).mean(),
     }
-    # Add qualitative attributes
+    # Here we also include the the qualitative attributes
     for attr in ['bright', 'warm', 'boomy', 'tight', 'punchy', 'sharp', 'muddy', 'crisp', 'resonant', 'metallic']:
         features[attr] = getattr(sound, attr)
     features_list.append(features)
@@ -56,7 +56,8 @@ pca = PCA(n_components=2)
 principal_components = pca.fit_transform(X_standardized)
 principal_df = pd.DataFrame(data=principal_components, columns=['PC1', 'PC2'])
 
-# Define the plotting function
+
+# Here we define the plotting function
 def plot_pca_by_attribute(df, principal_df, attribute):
     final_df = pd.concat([principal_df, df[['filename', attribute]]], axis=1)
     colors = ['blue' if not x else 'orange' for x in final_df[attribute]]
@@ -70,7 +71,7 @@ def plot_pca_by_attribute(df, principal_df, attribute):
     plt.grid(True)
     plt.show()
 
-# Call the function for each qualitative attribute
+# Here we call the function for each qualitative attribute
 attributes = ['bright', 'warm', 'boomy', 'tight', 'punchy', 'sharp', 'muddy', 'crisp', 'resonant', 'metallic']
 for attribute in attributes:
     plot_pca_by_attribute(df, principal_df, attribute)
