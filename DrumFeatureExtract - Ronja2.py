@@ -126,29 +126,29 @@ ax.set_xlabel('Normalized Spectral Centroid')
 ax.set_ylabel('Normalized Spectral Bandwidth')
 ax.set_zlabel('Characteristics')
 
-# Now, plotting two features against each other in a scatter plot
-#plt.figure(figsize=(10, 8))
-#plt.scatter(
-#    features_dataframe['Spectral Centroid Normalized'],
-#    features_dataframe['Spectral Bandwidth Normalized'],
-#    characteristics_dataframe['Tight'],
-#    characteristics_dataframe['Punchy'],
-#    characteristics_dataframe['Warm'],
-#    characteristics_dataframe['Bright'],
-#    characteristics_dataframe['Sharp'],
-#    characteristics_dataframe['Metallic'],
-#    characteristics_dataframe['Muddy'],
-#    characteristics_dataframe['Crisp'],
-#    characteristics_dataframe['Wood'],
-#    cmap='viridis',
-#    alpha=0.5
-#)
+#Now, plotting two features against each other in a scatter plot
+plt.figure(figsize=(10, 8))
+plt.scatter(
+    features_dataframe['Spectral Centroid Normalized'],
+    features_dataframe['Spectral Bandwidth Normalized'],
+    characteristics_dataframe['Tight'],
+    characteristics_dataframe['Punchy'],
+    characteristics_dataframe['Warm'],
+    characteristics_dataframe['Bright'],
+    characteristics_dataframe['Sharp'],
+    characteristics_dataframe['Metallic'],
+    characteristics_dataframe['Muddy'],
+    characteristics_dataframe['Crisp'],
+    characteristics_dataframe['Wood'],
+    cmap='viridis',
+    alpha=0.5
+)
 
-#plt.title('Normalized Spectral Bandwidth vs Spectral Bandwidth')
-#plt.xlabel('Normalized Spectral Centroid')
-#plt.ylabel('Normalized Spectral Bandwidth')
-#plt.colorbar(label='Tight')
-#plt.grid(True)
+plt.title('Normalized Spectral Bandwidth vs Spectral Bandwidth')
+plt.xlabel('Normalized Spectral Centroid')
+plt.ylabel('Normalized Spectral Bandwidth')
+plt.colorbar(label='Tight')
+plt.grid(True)
 
 cbar = plt.colorbar(sc, ax=ax, label='Tight')
 plt.title('3D Scatter Plot - Spectral Features vs Characteristics')
