@@ -3,13 +3,8 @@ import os
 import librosa.feature
 import matplotlib.pyplot as plt
 import pandas
-import SoundScript
-
-
-#drumFolder = '/Users/mads/Desktop/MED5/A_kicks/subdir1'
-
-#drumSample = '/Users/mads/Desktop/MED5/A_kicks/subdir1/000000-KICK_ARBLICK.wav'
-#y, sr = librosa.load(drumSample)
+from sklearn.preprocessing import StandardScaler
+from sklearn.manifold import TSNE
 
 
 directories = [
@@ -59,35 +54,32 @@ for filename in os.listdir(drumFolder):
 # Convert the list of features into a DataFrame
 features_dataframe = pandas.DataFrame(features_list)
 
+# Extract and store filenames
+file_paths = features_dataframe['Filename']
+
+# Drop the filename column for normalization
+features_for_normalization = features_dataframe.drop(columns=['Filename'])
+
 # Normalize the features
 for feature in ['Spectral Centroid', 'Spectral Bandwidth', 'Zero Crossing Rate', 'RMS Energy']:
-    min_value = features_dataframe[feature].min()
-    max_value = features_dataframe[feature].max()
-    features_dataframe[feature + ' Normalized'] = (features_dataframe[feature] - min_value) / (max_value - min_value)
+    min_value = features_for_normalization[feature].min()
+    max_value = features_for_normalization[feature].max()
+    features_dataframe[feature + ' Normalized'] = (features_for_normalization[feature] - min_value) / (max_value - min_value)
 
-# Now, plotting two features against each other in a scatter plot
+# Apply t-SNE
+tsne = TSNE(n_components=2, random_state=42)  # Choose number of components
+tsne_components = tsne.fit_transform(features_for_normalization)
+
+# Visualize data after t-SNE
 plt.figure(figsize=(8, 6))
-plt.scatter(features_dataframe['Spectral Centroid Normalized'], features_dataframe['Spectral Bandwidth Normalized'], alpha=0.5)
-plt.title('Normalized Spectral Centroid vs Spectral Bandwidth')
-plt.xlabel('Normalized Spectral Centroid')
-plt.ylabel('Normalized Spectral Bandwidth')
+plt.scatter(tsne_components[:, 0], tsne_components[:, 1], c='b', marker='o', edgecolors='k')
+plt.title('t-SNE of Sound Files')
+plt.xlabel('t-SNE Component 1')
+plt.ylabel('t-SNE Component 2')
+
+# Add labels to the points on the scatter plot
+#for i, txt in enumerate(file_paths):
+#    plt.annotate(txt, (tsne_components[i, 0], tsne_components[i, 1]))
+
 plt.grid(True)
 plt.show()
-
-
-# Here it prints out the feature values
-"""
-for feature in features_list:
-    print(feature)
-plt.show()
-"""
-
-
-# Here it prints out the normalized features for each sound file
-for index, row in features_dataframe.iterrows():
-    print(f"Filename: {row['Filename']}")
-    print(f"  Normalized Spectral Centroid: {row['Spectral Centroid Normalized']}")
-    print(f"  Normalized Spectral Bandwidth: {row['Spectral Bandwidth Normalized']}")
-    print(f"  Normalized Zero Crossing Rate: {row.get('Zero Crossing Rate Normalized', 'N/A')}")
-    print(f"  Normalized RMS Energy: {row.get('RMS Energy Normalized', 'N/A')}")
-    print("-------------------------------------------------")
