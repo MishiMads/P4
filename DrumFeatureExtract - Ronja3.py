@@ -8,6 +8,7 @@ import numpy as np
 directory = r'C:/Users/rglus/OneDrive/Skrivebord/Kurser/4. semester/P4/Tilsendte materialer/A_kicks/At variablere',
 
 class Soundfile:
+    
     def __init__(self, path, filename, tight, punchy, warm, bright, sharp, metallic, muddy, crisp, wood):
         self.path = path
         self.filename = filename
