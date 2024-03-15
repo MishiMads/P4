@@ -7,6 +7,7 @@ from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
+#import PCAWeight
 
 # Assuming the drumFolder is correctly set to where your .wav files are located
 drumFolder = '500_Sounds'
