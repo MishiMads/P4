@@ -10,7 +10,7 @@ from sklearn.manifold import TSNE
 directories = [
     '/Users/mads/Desktop/MED5/A_kicks/subdir1',
     '/Users/jakob/Desktop/A_kicks/subdir1',
-    '/Users/anitalarsen/Downloads/A_kicks/subdir1',
+    '/Users/anitalarsen/Desktop/P4/500_Sounds',
     'C:\Mediologi\P4\Rapport\A_kicks\subdir1',
     'C:/Users/rglus/OneDrive/Skrivebord/Kurser/4. semester/P4/Tilsendte materialer/A_kicks/subdir287',
 ]
