@@ -1,34 +1,16 @@
-import librosa
 import os
+import librosa
 import librosa.feature
 import matplotlib.pyplot as plt
-import pandas
-import SoundScript
+import pandas as pd
+from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
+from sklearn.cluster import DBSCAN
 
-
-#drumFolder = '/Users/mads/Desktop/MED5/A_kicks/subdir1'
-
-#drumSample = '/Users/mads/Desktop/MED5/A_kicks/subdir1/000000-KICK_ARBLICK.wav'
-#y, sr = librosa.load(drumSample)
-
-
-directories = [
-    '/Users/mads/Desktop/MED5/A_kicks/subdir1',
-    '/Users/jakob/Desktop/A_kicks/subdir1',
-    '/Users/anitalarsen/Downloads/A_kicks/subdir1',
-    'C:\Mediologi\P4\Rapport\A_kicks\subdir1',
-    'C:/Users/rglus/OneDrive/Skrivebord/Kurser/4. semester/P4/Tilsendte materialer/A_kicks/subdir287',
-]
-
-for directory in directories:
-    if os.path.exists(directory):
-        drumFolder = directory
-    else:
-        print('No Bueno')
-
+# Assuming the drumFolder is correctly set to where your .wav files are located
+drumFolder = '500_Sounds'
 
 features_list = []
-
 
 # Iterate over each file in the folder
 for filename in os.listdir(drumFolder):
@@ -55,39 +37,45 @@ for filename in os.listdir(drumFolder):
             'RMS Energy': rms_energy
         })
 
-
 # Convert the list of features into a DataFrame
-features_dataframe = pandas.DataFrame(features_list)
+features_dataframe = pd.DataFrame(features_list)
 
-# Normalize the features
-for feature in ['Spectral Centroid', 'Spectral Bandwidth', 'Zero Crossing Rate', 'RMS Energy']:
-    min_value = features_dataframe[feature].min()
-    max_value = features_dataframe[feature].max()
-    features_dataframe[feature + ' Normalized'] = (features_dataframe[feature] - min_value) / (max_value - min_value)
+# Selecting features for t-SNE and PCA
+features = features_dataframe[['Spectral Centroid', 'Spectral Bandwidth', 'Spectral Rolloff', 'Zero Crossing Rate', 'RMS Energy']]
 
-# Now, plotting two features against each other in a scatter plot
-plt.figure(figsize=(8, 6))
-plt.scatter(features_dataframe['Spectral Centroid Normalized'], features_dataframe['Spectral Bandwidth Normalized'], alpha=0.5)
-plt.title('Normalized Spectral Centroid vs Spectral Bandwidth')
-plt.xlabel('Normalized Spectral Centroid')
-plt.ylabel('Normalized Spectral Bandwidth')
-plt.grid(True)
+# Applying PCA
+pca = PCA(n_components=2)
+pca_results = pca.fit_transform(features)
+
+# Applying DBSCAN
+# These parameters (eps and min_samples) might need adjustment based on your data
+dbscan = DBSCAN(eps=4, min_samples=3).fit(pca_results)
+
+# Getting cluster labels (note: -1 means outlier)
+cluster_labels = dbscan.labels_
+
+# Visualizing PCA with DBSCAN clusters
+plt.figure(figsize=(10, 5))
+plt.subplot(1, 2, 1)
+plt.scatter(pca_results[:, 0], pca_results[:, 1], c=cluster_labels, cmap='viridis', alpha=0.5)
+plt.title('PCA with DBSCAN Clusters')
+plt.xlabel('PCA 1')
+plt.ylabel('PCA 2')
+
+# If you wish to compare with t-SNE
+# Applying t-SNE
+tsne = TSNE(n_components=2, random_state=0)
+tsne_results = tsne.fit_transform(features)
+
+# Re-applying DBSCAN on t-SNE results for comparison
+dbscan_tsne = DBSCAN(eps=3, min_samples=2).fit(tsne_results)
+tsne_labels = dbscan_tsne.labels_
+
+plt.subplot(1, 2, 2)
+plt.scatter(tsne_results[:, 0], tsne_results[:, 1], c=tsne_labels, cmap='viridis', alpha=0.5)
+plt.title('t-SNE with DBSCAN Clusters')
+plt.xlabel('t-SNE 1')
+plt.ylabel('t-SNE 2')
+
+plt.tight_layout()
 plt.show()
-
-
-# Here it prints out the feature values
-"""
-for feature in features_list:
-    print(feature)
-plt.show()
-"""
-
-
-# Here it prints out the normalized features for each sound file
-for index, row in features_dataframe.iterrows():
-    print(f"Filename: {row['Filename']}")
-    print(f"  Normalized Spectral Centroid: {row['Spectral Centroid Normalized']}")
-    print(f"  Normalized Spectral Bandwidth: {row['Spectral Bandwidth Normalized']}")
-    print(f"  Normalized Zero Crossing Rate: {row.get('Zero Crossing Rate Normalized', 'N/A')}")
-    print(f"  Normalized RMS Energy: {row.get('RMS Energy Normalized', 'N/A')}")
-    print("-------------------------------------------------")
