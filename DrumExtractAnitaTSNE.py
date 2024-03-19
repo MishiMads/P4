@@ -8,22 +8,13 @@ from sklearn.manifold import TSNE
 
 
 directories = [
-    '/Users/mads/Desktop/MED5/A_kicks/subdir1',
-    '/Users/jakob/Desktop/A_kicks/subdir1',
-    '/Users/anitalarsen/Desktop/P4/500_Sounds',
-    'C:\Mediologi\P4\Rapport\A_kicks\subdir1',
-    'C:/Users/rglus/OneDrive/Skrivebord/Kurser/4. semester/P4/Tilsendte materialer/A_kicks/subdir287',
+    '/Users/anitalarsen/Desktop/P4/500_Sounds'
 ]
 
 for directory in directories:
-    if os.path.exists(directory):
         drumFolder = directory
-    else:
-        print('No Bueno')
-
 
 features_list = []
-
 
 # Iterate over each file in the folder
 for filename in os.listdir(drumFolder):
