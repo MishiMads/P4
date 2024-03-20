@@ -22,7 +22,7 @@ for filename in os.listdir(drumFolder):
         # Load the audio file
         y, sr = librosa.load(file_path)
 
-        # Extract features
+        # Extract featuresBruhScript.pyBruhScript.py
         spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr).mean()
         spectral_bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr).mean()
         spectral_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr).mean()
