@@ -5,11 +5,12 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
-import numpy as np  # Importing NumPy
+import numpy as np
 import mplcursors
 import tkinter as tk
 from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import soundfile as sf
 
 # Calculates distance between points
 def euclidean_distance(point1, point2):
@@ -21,7 +22,7 @@ def play_sound(selected_point):
     selected_filename = features_dataframe.iloc[selected_index]['Filename']
     selected_file_path = os.path.join(drumFolder, selected_filename)
     y, sr = librosa.load(selected_file_path)
-    librosa.output.write_wav("temp.wav", y, sr)
+    sf.write("temp.wav", y, sr)
     os.system("start temp.wav")
 
 # Assuming the drumFolder is correctly set to where your .wav files are located
