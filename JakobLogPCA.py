@@ -71,8 +71,8 @@ scatter = ax2.scatter(pca_results[:, 0], pca_results[:, 1], alpha=0.5, picker=5)
 #ax2.xlabel('PCA Component 1')
 #ax2.ylabel('PCA Component 2')
 
-#plt.xlim(-1, 1)
-#plt.ylim(-0.2, 0.2)
+plt.xlim(-1, 0)
+plt.ylim(-0.5, 0.5)
 
 
 def on_click(event):
