@@ -6,8 +6,19 @@ import pandas
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 import numpy as np
+import tkinter as tk
+from tkinter import ttk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-number_of_features = 3
+# GUI
+window = tk.Tk()
+window.title("You're mom")
+
+plot_frame = ttk.Frame(window)
+plot_frame.pack(padx=10, pady=10)
+
+number_of_features = 5
+
 
 def extract_features(audio):
     y, sr = librosa.load(audio)
@@ -16,14 +27,14 @@ def extract_features(audio):
     spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr).mean()
     spectral_bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr).mean()
     spectral_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr).mean()
-    #zero_crossing_rate = librosa.feature.zero_crossing_rate(y).mean()
-    #rms_energy = librosa.feature.rms(y=y).mean()
+    zero_crossing_rate = librosa.feature.zero_crossing_rate(y).mean()
+    rms_energy = librosa.feature.rms(y=y).mean()
 
     s_features.append(spectral_centroid)
     s_features.append(spectral_bandwidth)
     s_features.append(spectral_rolloff)
-    #s_features.append(zero_crossing_rate)
-    #s_features.append(rms_energy)
+    s_features.append(zero_crossing_rate)
+    s_features.append(rms_energy)
 
     return s_features
 
@@ -54,14 +65,30 @@ axs[number_of_features - 1].set_xlabel('Feature Values')
 pca = PCA(n_components=2)
 pca_results = pca.fit_transform(X_log)
 
-plt.figure(figsize=(7, 5))
-plt.scatter(pca_results[:, 0], pca_results[:, 1], alpha=0.5)
-plt.title('PCA Log() features')
-plt.xlabel('PCA Component 1')
-plt.ylabel('PCA Component 2')
+fig2, ax2 = plt.subplots()
+scatter = ax2.scatter(pca_results[:, 0], pca_results[:, 1], alpha=0.5, picker=5)
+#ax2.title('PCA Log() features')
+#ax2.xlabel('PCA Component 1')
+#ax2.ylabel('PCA Component 2')
 
-plt.xlim(-1, 1)
-plt.ylim(-0.2, 0.2)
+#plt.xlim(-1, 1)
+#plt.ylim(-0.2, 0.2)
+
+
+def on_click(event):
+    if event.inaxes == ax2:
+        ind = event.ind[0]
+        print("BruH!", ind)
+
+
+fig.canvas.mpl_connect('pick_event', on_click)
+
+canvas = FigureCanvasTkAgg(fig2, master=plot_frame)
+canvas.draw()
+canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
 plt.tight_layout()
 plt.show()
+
+window.mainloop()
+
