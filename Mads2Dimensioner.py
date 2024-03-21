@@ -42,14 +42,17 @@ for filename in os.listdir(drumFolder):
         onset_strength = librosa.onset.onset_strength(y=y, sr=sr).mean()
         spectral_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr).mean()
         spectral_contrast = librosa.feature.spectral_contrast(y=y, sr=sr).mean()
+        spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr).mean()
 
         features_list.append({
             'Filename': filename,
             'RMS Energy': rms_energy,
-            'Zero Crossing Rate': zero_crossing_rate,
-            #'Onset Strength': onset_strength,
+            #'Zero Crossing Rate': zero_crossing_rate,
+            'Onset Strength': onset_strength,
             #'Spectral Rolloff': spectral_rolloff,
-            #'Spectral Contrast': spectral_contrast,
+            #'Spectral Centroid': spectral_centroid,
+            #'Spectral Contrast': spectral_contrast
+
         })
 
 # Convert features_list to a DataFrame
