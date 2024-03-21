@@ -24,17 +24,21 @@ def extract_features(audio):
     y, sr = librosa.load(audio)
     s_features = []
 
-    spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr).mean()
-    spectral_bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr).mean()
+    # spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr).mean()
+    # spectral_bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr).mean()
     spectral_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr).mean()
     zero_crossing_rate = librosa.feature.zero_crossing_rate(y).mean()
     rms_energy = librosa.feature.rms(y=y).mean()
+    spectral_contrast = librosa.feature.spectral_contrast(y=y, sr=sr).mean(axis=1).mean()
+    onset_env = librosa.onset.onset_strength(y=y, sr=sr).mean()
 
-    s_features.append(spectral_centroid)
-    s_features.append(spectral_bandwidth)
+    # s_features.append(spectral_centroid)
+    # s_features.append(spectral_bandwidth)
     s_features.append(spectral_rolloff)
     s_features.append(zero_crossing_rate)
     s_features.append(rms_energy)
+    s_features.append(spectral_contrast)
+    s_features.append(onset_env)
 
     return s_features
 
@@ -71,8 +75,8 @@ scatter = ax2.scatter(pca_results[:, 0], pca_results[:, 1], alpha=0.5, picker=5)
 #ax2.xlabel('PCA Component 1')
 #ax2.ylabel('PCA Component 2')
 
-plt.xlim(-1, 0)
-plt.ylim(-0.5, 0.5)
+# plt.xlim(-1, 0)
+# plt.ylim(-0.5, 0.5)
 
 
 def on_click(event):
