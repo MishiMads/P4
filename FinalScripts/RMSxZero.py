@@ -11,9 +11,11 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import sounddevice as sd
 from matplotlib.text import Annotation
 
+
 # Calculates distance between points
 def euclidean_distance(point1, point2):
     return np.linalg.norm(point1 - point2)
+
 
 # Plays closest sound
 def play_sound(selected_point):
@@ -25,6 +27,7 @@ def play_sound(selected_point):
     sd.stop()  # Stop any currently playing sounds
     sd.play(y, sr)
     sd.wait()
+
 
 drumFolder = '500_Sounds'
 features_list = []
@@ -90,11 +93,13 @@ tooltip = ax.annotate("", xy=(0,0), xytext=(20,20), textcoords="offset points",
                       arrowprops=dict(arrowstyle="->"))
 tooltip.set_visible(False)
 
+
 def on_pick(event):
     if event.artist == scatter:
         ind = event.ind[0]  # Get the index of the clicked point
         selected_point = np.array([scaled_features[ind, 0], scaled_features[ind, 1]])
         play_sound(selected_point)
+
 
 def update_tooltip(event):
     vis = tooltip.get_visible()
@@ -111,6 +116,7 @@ def update_tooltip(event):
             if vis:
                 tooltip.set_visible(False)
                 fig.canvas.draw_idle()
+
 
 fig.canvas.mpl_connect('pick_event', on_pick)
 
