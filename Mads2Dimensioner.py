@@ -63,6 +63,13 @@ features_log_transformed = features_dataframe.iloc[:, 1:].apply(np.log)
 scaler = StandardScaler()
 scaled_features = scaler.fit_transform(features_log_transformed)
 
+# Convert features_list to a DataFrame
+features_dataframe = pd.DataFrame(features_list)
+
+# Assume the first two feature names after 'Filename' are what we want for the x and y axes
+feature_x_name = features_dataframe.columns[1]  # This will be 'RMS Energy' based on your extraction
+feature_y_name = features_dataframe.columns[2]  # This will be 'Zero Crossing Rate'
+
 # Create window
 window = tk.Tk()
 window.title("Feature Scatter Plot")
@@ -70,9 +77,10 @@ window.title("Feature Scatter Plot")
 fig, ax = plt.subplots(figsize=(7,5))
 scatter = ax.scatter(scaled_features[:, 0], scaled_features[:, 1], alpha=0.5, picker=5)  # Enable picker with a tolerance
 
-ax.set_title('Scatter Plot of RMS Energy and Spectral Flatness')
-ax.set_xlabel('Scaled RMS Energy')
-ax.set_ylabel('Scaled Spectral Flatness')
+# Set titles and labels dynamically based on the selected features
+ax.set_title(f'Scatter Plot of Scaled {feature_x_name} vs Scaled {feature_y_name}')
+ax.set_xlabel(f'Scaled {feature_x_name}')
+ax.set_ylabel(f'Scaled {feature_y_name}')
 
 # Initialize a text annotation for displaying filenames, but set it to be invisible for now
 tooltip = ax.annotate("", xy=(0,0), xytext=(20,20), textcoords="offset points",
