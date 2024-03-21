@@ -47,7 +47,7 @@ scaled_features = scaler.fit_transform(log_transformed_features)
 
 # Applying PCA
 pca = PCA(n_components=2)
-pca_results = pca.fit_transform(scaled_features)
+pca_results = pca.fit_transform(log_transformed_features)
 
 # Plotting PCA results
 plt.figure(figsize=(7, 5))
