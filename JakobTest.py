@@ -23,7 +23,7 @@ def extract_feature1(audio):
 def extract_feature2(audio):
     y, sr = librosa.load(audio)
 
-    return librosa.feature.spectral_flatness(y=y).mean()
+    return librosa.feature.rms(y=y).mean()
 
 
 X = []
@@ -36,9 +36,12 @@ for file in sound_files:
     feature2 = extract_feature2(audio_file)
     Y.append(feature2)
 
+X_log = np.log(X)
+Y_log = np.log(Y)
+
 plt.figure(figsize=(7, 5))
-plt.scatter(X, Y, alpha=0.5)
-plt.title('Zero Crossing Rate vs Spectral Flatness')
-plt.xlabel('Zero Crossing Rate')
-plt.ylabel('Spectral Flatness')
+plt.scatter(X_log, Y_log, alpha=0.5)
+plt.title('2 Features')
+plt.xlabel('Feature 1')
+plt.ylabel('Feature 2')
 plt.show()
