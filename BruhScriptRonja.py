@@ -16,14 +16,54 @@ import sounddevice as sd
 def euclidean_distance(point1, point2):
     return np.linalg.norm(point1 - point2)
 
-# Plays closest sound
-def play_sound(selected_point):
-    selected_index = np.argmin([euclidean_distance(selected_point, point) for point in pca_results])
-    selected_filename = features_dataframe.iloc[selected_index]['Filename']
-    selected_file_path = os.path.join(drumFolder, selected_filename)
-    y, sr = librosa.load(selected_file_path, sr=None)
-    sd.play(y, sr)
-    sd.wait()
+# Afspiller specifikke punkter
+#def play_sound(selected_point):
+#    selected_index = np.argmin([euclidean_distance(selected_point, point) for point in pca_results])
+#    selected_filename = features_dataframe.iloc[selected_index]['Filename']
+#    selected_file_path = os.path.join(drumFolder, selected_filename)
+#    y, sr = librosa.load(selected_file_path, sr=None)
+#    sd.play(y, sr)
+#    sd.wait()
+
+# Afspiller nærmeste punkt
+#def play_closest_sound(event):
+#    x, y = event.xdata, event.ydata
+#    xdata, ydata = ax.transData.inverted().transform([x, y])
+#    clicked_point = np.array([xdata, ydata])
+#    selected_index = np.argmin([euclidean_distance(clicked_point, point) for point in pca_results])
+#    selected_filename = features_dataframe.iloc[selected_index]['Filename']
+#    selected_file_path = os.path.join(drumFolder, selected_filename)
+#    y, sr = librosa.load(selected_file_path, sr=None)
+#    sd.play(y, sr)
+#    sd.wait()
+#    coords.config(text=f"Clicked coordinates: {xdata:.2f}, {ydata:.2f}")
+#    filename_label.config(text=f"Sound file: {selected_filename}")
+#    history.append((xdata, ydata, selected_filename))
+#    update_history()
+
+def play_closest_sound(event):
+    x,y = event.xdata, event.ydata
+    if x is not None and y is not None:
+        clicked_point = np.array([x, y])
+        selected_index = np.argmin([euclidean_distance(clicked_point, point) for point in pca_results])
+        selected_filename = features_dataframe.iloc[selected_index]['Filename']
+        selected_file_path = os.path.join(drumFolder, selected_filename)
+        y, sr = librosa.load(selected_file_path, sr=None)
+        sd.play(y, sr)
+        sd.wait()
+        coords.config(text=f"Clicked coordinates: {x:.2f}, {y:.2f}")
+        filename_label.config(text="Sound file: {selected_filename")
+        history.append((x, y, selected_filename))
+        update_history()
+
+def update_history():
+    history_text = "History\n"
+    for item in history[-5:]:
+        history_text += f"{item[2]} at ({item[0]:.2f}, {item[1]:.2f})\n"
+    history_label.config(text=history_text)
+    #history_text.delete(1.0, tk.END)
+    #for coords, filename in history:
+    #    history_text.insert(tk-END, f"Coordinates: {coords}, Sound file: {filename}\n")
 
 # Assuming the drumFolder is correctly set to where your .wav files are located
 drumFolder = '500_Sounds'
@@ -39,20 +79,24 @@ for filename in os.listdir(drumFolder):
         y, sr = librosa.load(file_path)
 
         # Extract features
-        spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr).mean()
-        spectral_bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr).mean()
+        #spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr).mean()
+        #spectral_bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr).mean()
         spectral_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr).mean()
         zero_crossing_rate = librosa.feature.zero_crossing_rate(y).mean()
         rms_energy = librosa.feature.rms(y=y).mean()
+        spectral_contrast = librosa.feature.spectral_contrast(y=y, sr=sr).mean(axis=1).mean()
+        onset_env = librosa.onset.onset_strength(y=y, sr=sr).mean()
 
         # Store the features
         features_list.append({
             'Filename': filename,
-            'Spectral Centroid': spectral_centroid,
-            'Spectral Bandwidth': spectral_bandwidth,
+            #'Spectral Centroid': spectral_centroid,
+            #'Spectral Bandwidth': spectral_bandwidth,
             'Spectral Rolloff': spectral_rolloff,
             'Zero Crossing Rate': zero_crossing_rate,
-            'RMS Energy': rms_energy
+            'RMS Energy': rms_energy,
+            'Spectral Contrast': spectral_contrast,
+            'Onset Envelope': onset_env
         })
 
 # Convert the list of features into a DataFrame
@@ -75,6 +119,7 @@ print(f"Explained variance by component: {pca.explained_variance_ratio_}")
 
 # Create window
 window = tk.Tk()
+#window.geometry('800x600')
 window.title("PCA Results")
 
 fig, ax = plt.subplots(figsize=(7,5))
@@ -82,12 +127,45 @@ scatter = ax.scatter(pca_results[:, 0], pca_results[:, 1], alpha=0.5)
 ax.set_title('PCA Results on Spread-Out Log-Transformed Features')
 ax.set_xlabel('PCA Component 1')
 ax.set_ylabel('PCA Component 2')
+#plt.xlim(-3, 0)
+#plt.ylim(-1, 0.5)
 
-mplcursors.cursor(scatter).connect("add", lambda sel: play_sound(sel.target))
+left_frame = tk.Frame(window)
+left_frame.pack(padx=10, pady=5, side=tk.LEFT)
 
-canvas = FigureCanvasTkAgg(fig, master=window)
+right_frame = tk.Frame(window)
+right_frame.pack(padx=10, pady=5, side=tk.RIGHT)
+
+bottom_frame = tk.Frame(window)
+bottom_frame.pack(padx=10, pady=5, side=tk.BOTTOM, fill=tk.X)
+
+canvas = FigureCanvasTkAgg(fig, master=left_frame)
 canvas.draw()
 canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
+coords = tk.Label(bottom_frame, text="")
+coords.pack(side=tk.RIGHT)
+
+filename_label = tk.Label(bottom_frame, text="")
+filename_label.pack(side=tk.LEFT)
+
+history_label = tk.Label(right_frame, text="History")
+history_label.pack()
+
+history_text = tk.Text(right_frame, height=30, width=20)
+history_text.pack(fill=tk.BOTH, expand=True)
+
+history = []
+
+#mplcursors.cursor(scatter).connect("add", lambda sel: play_sound(sel.target))
+
+fig.canvas.mpl_connect('button_press_event', play_closest_sound)
+
+#canvas = FigureCanvasTkAgg(fig, master=left_frame)
+#canvas.draw()
+#canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+#canvas.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+#canvas.get_tk_widget().pack(side=tk.TOP, expand=1)
 
 window.mainloop()
 
