@@ -17,7 +17,7 @@ sound_dir = '500_Sounds'
 def extract_feature1(audio):
     y, sr = librosa.load(audio)
 
-    return librosa.feature.zero_crossing_rate(y).mean()
+    return librosa.feature.spectral_rolloff(y=y, sr=sr).mean()
 
 
 def extract_feature2(audio):
