@@ -1,7 +1,9 @@
 import os
 import librosa
+import librosa.feature
 import matplotlib.pyplot as plt
 import pandas as pd
+from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 import mplcursors
@@ -9,53 +11,77 @@ import tkinter as tk
 from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import sounddevice as sd
-from matplotlib.text import Annotation
+
 
 # Calculates distance between points
 def euclidean_distance(point1, point2):
     return np.linalg.norm(point1 - point2)
 
-# Plays closest sound
-def play_sound(selected_point):
-    scaled_features_array = np.array(scaled_features)
-    selected_index = np.argmin([euclidean_distance(selected_point, point) for point in scaled_features_array])
-    selected_filename = features_dataframe.iloc[selected_index]['Filename']
-    selected_file_path = os.path.join(drumFolder, selected_filename)
-    y, sr = librosa.load(selected_file_path, sr=None)
-    sd.stop()  # Stop any currently playing sounds
-    sd.play(y, sr)
-    sd.wait()
 
-drumFolder = '500_Sounds'
+def play_closest_sound(event):
+    x,y = event.xdata, event.ydata
+    if x is not None and y is not None:
+        clicked_point = np.array([x, y])
+        selected_index = np.argmin([euclidean_distance(clicked_point, point) for point in pca_results])
+        selected_filename = features_dataframe.iloc[selected_index]['Filename']
+        selected_file_path = os.path.join(drumFolder, selected_filename)
+        y, sr = librosa.load(selected_file_path, sr=None)
+        sd.play(y, sr)
+        sd.wait()
+        coords.config(text=f"Clicked coordinates: {x:.2f}, {y:.2f}")
+        filename_label.config(text="Sound file: {selected_filename")
+        history.append((x, y, selected_filename))
+        update_history()
+
+
+def update_history():
+    history_text = "History\n"
+    for item in history[-5:]:
+        history_text += f"{item[2]} at ({item[0]:.2f}, {item[1]:.2f})\n"
+    history_label.config(text=history_text)
+
+
+# Assuming the drumFolder is correctly set to where your .wav files are located
+drumFolder = '/Users/anitalarsen/Desktop/P4/500_Sounds'
+
+# image
+image = '/Users/anitalarsen/Desktop/P4/AnitaThings/fracNoise.png'
+
 features_list = []
 
+# Iterate over each file in the folder
 for filename in os.listdir(drumFolder):
-    if filename.endswith('.wav'):
+    if filename.endswith('.wav'):  # Check if the file is a WAV file
         file_path = os.path.join(drumFolder, filename)
+
+        # Load the audio file
         y, sr = librosa.load(file_path)
 
-        # Extract selected features
-        rms_energy = librosa.feature.rms(y=y).mean()
-        spectral_flatness = librosa.feature.spectral_flatness(y=y).mean()
-        rms_energy = librosa.feature.rms(y=y).mean()
-        zero_crossing_rate = librosa.feature.zero_crossing_rate(y=y).mean()
-        onset_strength = librosa.onset.onset_strength(y=y, sr=sr).mean()
+        # Extract features
+        #spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr).mean()
+        #spectral_bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr).mean()
         spectral_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr).mean()
-        spectral_contrast = librosa.feature.spectral_contrast(y=y, sr=sr).mean()
+        zero_crossing_rate = librosa.feature.zero_crossing_rate(y).mean()
+        rms_energy = librosa.feature.rms(y=y).mean()
+        spectral_contrast = librosa.feature.spectral_contrast(y=y, sr=sr).mean(axis=1).mean()
+        onset_env = librosa.onset.onset_strength(y=y, sr=sr).mean()
 
+        # Store the features
         features_list.append({
             'Filename': filename,
-            'RMS Energy': rms_energy,
+            #'Spectral Centroid': spectral_centroid,
+            #'Spectral Bandwidth': spectral_bandwidth,
+            'Spectral Rolloff': spectral_rolloff,
             'Zero Crossing Rate': zero_crossing_rate,
-            #'Onset Strength': onset_strength,
-            #'Spectral Rolloff': spectral_rolloff,
-            #'Spectral Contrast': spectral_contrast,
+            'RMS Energy': rms_energy,
+            'Spectral Contrast': spectral_contrast,
+            'Onset Envelope': onset_env
         })
 
-# Convert features_list to a DataFrame
+# Convert the list of features into a DataFrame
 features_dataframe = pd.DataFrame(features_list)
 
-# Before scaling, apply log to the selected features to ensure they're all positive
+# Before scaling, apply log to the features to ensure they're all positive
 # Exclude the filename column for the logarithm transformation
 features_log_transformed = features_dataframe.iloc[:, 1:].apply(np.log)
 
@@ -63,62 +89,62 @@ features_log_transformed = features_dataframe.iloc[:, 1:].apply(np.log)
 scaler = StandardScaler()
 scaled_features = scaler.fit_transform(features_log_transformed)
 
-# Convert features_list to a DataFrame
-features_dataframe = pd.DataFrame(features_list)
+# Applying PCA
+pca = PCA(n_components=2)
+pca_results = pca.fit_transform(scaled_features)
 
-# Assume the first two feature names after 'Filename' are what we want for the x and y axes
-feature_x_name = features_dataframe.columns[1]  # This will be 'RMS Energy' based on your extraction
-feature_y_name = features_dataframe.columns[2]  # This will be 'Zero Crossing Rate'
+# Identify important axes (features) for PCA by looking at the explained variance ratio
+print(f"Explained variance by component: {pca.explained_variance_ratio_}")
 
 # Create window
 window = tk.Tk()
-window.title("Feature Scatter Plot")
+# window.geometry('800x600')
+window.title("PCA Results")
 
 fig, ax = plt.subplots(figsize=(7,5))
-scatter = ax.scatter(scaled_features[:, 0], scaled_features[:, 1], alpha=0.5, picker=5)  # Enable picker with a tolerance
-plt.xlim(-1.5, 1.5)
-plt.ylim(-1.5, 1.5)
+im = plt.imread(image)
+image_extent = [-2, 2, -2, 2]  # Define the extent of the image in data coordinates
+plt.imshow(im, zorder=2, extent=image_extent)  # Use extent parameter to adjust the size of the image
+scatter = ax.scatter(pca_results[:, 0], pca_results[:, 1], alpha=0.5,zorder=1)
+ax.set_title('PCA Results on Spread-Out Log-Transformed Features')
+ax.set_xlabel('PCA Component 1')
+ax.set_ylabel('PCA Component 2')
+plt.xlim(-2, 2)
+plt.ylim(-2, 2)
 
-# Set titles and labels dynamically based on the selected features
-ax.set_title(f'Scatter Plot of Scaled {feature_x_name} vs Scaled {feature_y_name}')
-ax.set_xlabel(f'Scaled {feature_x_name}')
-ax.set_ylabel(f'Scaled {feature_y_name}')
+left_frame = tk.Frame(window)
+left_frame.pack(padx=10, pady=5, side=tk.LEFT)
 
-# Initialize a text annotation for displaying filenames, but set it to be invisible for now
-tooltip = ax.annotate("", xy=(0,0), xytext=(20,20), textcoords="offset points",
-                      bbox=dict(boxstyle="round", fc="w"),
-                      arrowprops=dict(arrowstyle="->"))
-tooltip.set_visible(False)
+right_frame = tk.Frame(window)
+right_frame.pack(padx=10, pady=5, side=tk.RIGHT)
 
-def on_pick(event):
-    if event.artist == scatter:
-        ind = event.ind[0]  # Get the index of the clicked point
-        selected_point = np.array([scaled_features[ind, 0], scaled_features[ind, 1]])
-        play_sound(selected_point)
+bottom_frame = tk.Frame(window)
+bottom_frame.pack(padx=10, pady=5, side=tk.BOTTOM, fill=tk.X)
 
-def update_tooltip(event):
-    vis = tooltip.get_visible()
-    if event.inaxes == ax:
-        contains, ind = scatter.contains(event)
-        if contains:
-            index = ind['ind'][0]
-            x, y = scatter.get_offsets()[index]
-            tooltip.xy = (x, y)
-            tooltip.set_text(features_dataframe['Filename'].iloc[index])
-            tooltip.set_visible(True)
-            fig.canvas.draw_idle()
-        else:
-            if vis:
-                tooltip.set_visible(False)
-                fig.canvas.draw_idle()
-
-fig.canvas.mpl_connect('pick_event', on_pick)
-
-# Comment this out to disable the tooltip :)
-fig.canvas.mpl_connect("motion_notify_event", update_tooltip)
-
-canvas = FigureCanvasTkAgg(fig, master=window)
+canvas = FigureCanvasTkAgg(fig, master=left_frame)
 canvas.draw()
 canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
+coords = tk.Label(bottom_frame, text="")
+coords.pack(side=tk.RIGHT)
+
+filename_label = tk.Label(bottom_frame, text="")
+filename_label.pack(side=tk.LEFT)
+
+history_label = tk.Label(right_frame, text="History")
+history_label.pack()
+
+history_text = tk.Text(right_frame, height=30, width=20)
+history_text.pack(fill=tk.BOTH, expand=True)
+
+history = []
+
+fig.canvas.mpl_connect('button_press_event', play_closest_sound)
+
 window.mainloop()
+
+
+# Accessing the loadings
+loadings = pca.components_
+print("Loadings for the first principal component:", loadings[0])
+print("Loadings for the second principal component:", loadings[1])

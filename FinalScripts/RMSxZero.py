@@ -29,7 +29,7 @@ def play_sound(selected_point):
     sd.wait()
 
 
-drumFolder = '500_Sounds'
+drumFolder = r'/Users/anitalarsen/Desktop/P4/500_Sounds'
 features_list = []
 
 for filename in os.listdir(drumFolder):
