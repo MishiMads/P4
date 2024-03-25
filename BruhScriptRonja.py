@@ -60,6 +60,9 @@ def update_history():
     history_text = "History\n"
     for item in history[-5:]:
         history_text += f"{item[2]} at ({item[0]:.2f}, {item[1]:.2f})\n"
+    history_text = history_text.strip()
+    history_text += "\n" * (5 - len(history[-5:]))
+    history_text = history_text.strip()
     history_label.config(text=history_text)
     #history_text.delete(1.0, tk.END)
     #for coords, filename in history:
@@ -146,7 +149,7 @@ canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 coords = tk.Label(bottom_frame, text="")
 coords.pack(side=tk.RIGHT)
 
-filename_label = tk.Label(bottom_frame, text="")
+filename_label = tk.Label(bottom_frame, text="", wraplength=300)
 filename_label.pack(side=tk.LEFT)
 
 history_label = tk.Label(right_frame, text="History")
