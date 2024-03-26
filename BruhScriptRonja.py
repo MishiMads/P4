@@ -54,7 +54,9 @@ def update_history_text():
     history_text.config(state=tk.DISABLED)
 
 # Assuming the drumFolder is correctly set to where your .wav files are located
-drumFolder = '500_Sounds'
+drumFolder = '1000_Sounds'
+
+image = 'tumblr_nwwbqef8Ak1u8icemo1_500.png'
 
 features_list = []
 
@@ -110,10 +112,13 @@ plot_frame = tk.Frame(window)
 plot_frame.pack(side=tk.LEFT, padx=10, pady=10)
 
 fig, ax = plt.subplots(figsize=(7,5))
-scatter = ax.scatter(pca_results[:, 0], pca_results[:, 1], alpha=0.5)
+im = plt.imread(image)
+image_extent = [-2, 2, -2, 2]
+plt.imshow(im, zorder=2, extent=image_extent)
+scatter = ax.scatter(pca_results[:, 0], pca_results[:, 1], alpha=0.5, zorder=1)
 ax.set_title('PCA Results on Spread-Out Log-Transformed Features')
-ax.set_xlabel('PCA Component 1')
-ax.set_ylabel('PCA Component 2')
+#ax.set_xlabel('PCA Component 1')
+#ax.set_ylabel('PCA Component 2')
 plt.xlim(-2, 2)
 plt.ylim(-2, 2)
 
