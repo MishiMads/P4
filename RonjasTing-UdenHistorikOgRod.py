@@ -17,17 +17,25 @@ def euclidean_distance(point1, point2):
     return np.linalg.norm(point1 - point2)
 
 def play_closest_sound(event):
-    x,y = event.xdata, event.ydata
+    x, y = event.xdata, event.ydata
     if x is not None and y is not None:
+        if isinstance(x, np.ndarray):
+            x = x[0]
+        if isinstance(y, np.ndarray):
+            y = y[0]
+
+        x = float(x)
+        y = float(y)
+
         clicked_point = np.array([x, y])
         selected_index = np.argmin([euclidean_distance(clicked_point, point) for point in pca_results])
         selected_filename = features_dataframe.iloc[selected_index]['Filename']
         selected_file_path = os.path.join(drumFolder, selected_filename)
-        y, sr = librosa.load(selected_file_path, sr=None)
-        sd.play(y, sr)
+        y_audio, sr_audio = librosa.load(selected_file_path, sr=None)
+        sd.play(y_audio, sr_audio)
         sd.wait()
         coords.config(text=f"Clicked coordinates: {x:.2f}, {y:.2f}")
-        filename_label.config(text="Sound file: {selected_filename")
+        filename_label.config(text=f"Sound file: {selected_filename}")
 
 # Assuming the drumFolder is correctly set to where your .wav files are located
 drumFolder = '500_Sounds'
@@ -87,24 +95,24 @@ scatter = ax.scatter(pca_results[:, 0], pca_results[:, 1], alpha=0.5)
 ax.set_title('PCA Results on Spread-Out Log-Transformed Features')
 ax.set_xlabel('PCA Component 1')
 ax.set_ylabel('PCA Component 2')
-#plt.xlim(-3, 0)
-#plt.ylim(-1, 0.5)
+plt.xlim(-2, 2)
+plt.ylim(-2, 2)
 
-left_frame = tk.Frame(window)
-left_frame.pack(padx=10, pady=5, side=tk.LEFT)
+#left_frame = tk.Frame(window)
+#left_frame.pack(padx=10, pady=5, side=tk.LEFT)
 
-bottom_frame = tk.Frame(window)
-bottom_frame.pack(padx=10, pady=5, side=tk.BOTTOM, fill=tk.X)
+#bottom_frame = tk.Frame(window)
+#bottom_frame.pack(padx=10, pady=5, side=tk.BOTTOM)
 
-canvas = FigureCanvasTkAgg(fig, master=left_frame)
+canvas = FigureCanvasTkAgg(fig, master=window)
 canvas.draw()
 canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-coords = tk.Label(bottom_frame, text="")
-coords.pack(side=tk.RIGHT)
+coords = tk.Label(window, text="", justify='center')
+coords.pack(side=tk.TOP)
 
-filename_label = tk.Label(bottom_frame, text="", wraplength=300)
-filename_label.pack(side=tk.LEFT)
+filename_label = tk.Label(window, text="", wraplength=300, justify='center')
+filename_label.pack(side=tk.BOTTOM)
 
 fig.canvas.mpl_connect('button_press_event', play_closest_sound)
 
