@@ -44,14 +44,6 @@ def play_closest_sound(event):
         history.insert(0, (x, y, selected_filename))
         update_history_text()
 
-        #history.append((x, y, selected_filename))
-        #history_text.delete('1.0', tk.END)
-        #for entry in history:
-        #    history_text.insert(tk.END, f"Clicked coordinates: {entry[0]:.2f}, {entry[1]:.2f}\n")
-        #    history_text.insert(tk.END, f"Sound file: {entry[2]}\n")
-        #    history_text.insert(tk.END, "-" * 35 + "\n")
-        #history_text.config(state=tk.DISABLED)
-
 def update_history_text():
     history_text.config(state=tk.NORMAL)
     history_text.delete('1.0', tk.END)
@@ -124,12 +116,6 @@ ax.set_xlabel('PCA Component 1')
 ax.set_ylabel('PCA Component 2')
 plt.xlim(-2, 2)
 plt.ylim(-2, 2)
-
-#left_frame = tk.Frame(window)
-#left_frame.pack(padx=10, pady=5, side=tk.LEFT)
-
-#bottom_frame = tk.Frame(window)
-#bottom_frame.pack(padx=10, pady=5, side=tk.BOTTOM)
 
 canvas = FigureCanvasTkAgg(fig, master=plot_frame)
 canvas.draw()
