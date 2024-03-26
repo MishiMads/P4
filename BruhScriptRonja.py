@@ -35,7 +35,7 @@ def play_closest_sound(event):
         sd.play(y_audio, sr_audio)
         sd.wait()
         coords_label.config(text=f"Clicked coordinates: {x:.2f}, {y:.2f}")
-        filename_label.config(text=f"Sound file: {selected_filename}")
+        filename_label.config(text=f"Sound file: {selected_filename}\n")
 
         history_text.config(state=tk.NORMAL)
         if len(history) >= MAX_HISTORY:
@@ -111,12 +111,12 @@ window.title("PCA Results")
 plot_frame = tk.Frame(window)
 plot_frame.pack(side=tk.LEFT, padx=10, pady=10)
 
-fig, ax = plt.subplots(figsize=(7,5))
+fig, ax = plt.subplots(figsize=(5,5))
 im = plt.imread(image)
 image_extent = [-2, 2, -2, 2]
 plt.imshow(im, zorder=2, extent=image_extent)
 scatter = ax.scatter(pca_results[:, 0], pca_results[:, 1], alpha=0.5, zorder=1)
-ax.set_title('PCA Results on Spread-Out Log-Transformed Features')
+ax.set_title('PCA Results on Spread-Out Log-Transformed Features\n')
 #ax.set_xlabel('PCA Component 1')
 #ax.set_ylabel('PCA Component 2')
 plt.xlim(-2, 2)
@@ -135,16 +135,13 @@ coords_label.pack()
 filename_label = tk.Label(right_frame, text="", wraplength=300, justify='center')
 filename_label.pack()
 
-empty_label = tk.Label(right_frame, text="")
-empty_label.pack()
-
 history_label = tk.Label(right_frame, text="History")
 history_label.pack()
 
-history_text = tk.Text(right_frame, height=25, width=35, state=tk.DISABLED)
+history_text = tk.Text(right_frame, height=26, width=35, state=tk.DISABLED)
 history_text.pack()
 
-MAX_HISTORY = 8
+MAX_HISTORY = 9
 history = []
 
 #bottom_frame = tk.Frame(window)
