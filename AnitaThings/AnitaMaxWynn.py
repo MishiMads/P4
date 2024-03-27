@@ -12,40 +12,51 @@ from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import sounddevice as sd
 
-
 # Calculates distance between points
 def euclidean_distance(point1, point2):
     return np.linalg.norm(point1 - point2)
 
-
 def play_closest_sound(event):
-    x,y = event.xdata, event.ydata
+    x, y = event.xdata, event.ydata
     if x is not None and y is not None:
+        if isinstance(x, np.ndarray):
+            x = x[0]
+        if isinstance(y, np.ndarray):
+            y = y[0]
+
+        x = float(x)
+        y = float(y)
+
         clicked_point = np.array([x, y])
         selected_index = np.argmin([euclidean_distance(clicked_point, point) for point in pca_results])
         selected_filename = features_dataframe.iloc[selected_index]['Filename']
         selected_file_path = os.path.join(drumFolder, selected_filename)
-        y, sr = librosa.load(selected_file_path, sr=None)
-        sd.play(y, sr)
+        y_audio, sr_audio = librosa.load(selected_file_path, sr=None)
+        sd.play(y_audio, sr_audio)
         sd.wait()
-        coords.config(text=f"Clicked coordinates: {x:.2f}, {y:.2f}")
-        filename_label.config(text="Sound file: {selected_filename")
-        history.append((x, y, selected_filename))
-        update_history()
+        coords_label.config(text=f"Clicked coordinates: {x:.2f}, {y:.2f}")
+        filename_label.config(text=f"Sound file: {selected_filename}\n")
 
+        history_text.config(state=tk.NORMAL)
+        if len(history) >= MAX_HISTORY:
+            history.pop(-1)
 
-def update_history():
-    history_text = "History\n"
-    for item in history[-5:]:
-        history_text += f"{item[2]} at ({item[0]:.2f}, {item[1]:.2f})\n"
-    history_label.config(text=history_text)
+        history.insert(0, (x, y, selected_filename))
+        update_history_text()
 
+def update_history_text():
+    history_text.config(state=tk.NORMAL)
+    history_text.delete('1.0', tk.END)
+    for entry in history:
+        history_text.insert(tk.END, f"Clicked coordinates: {entry[0]:.2f}, {entry[1]:.2f}\n")
+        history_text.insert(tk.END, f"Sound file: {entry[2]}\n")
+        history_text.insert(tk.END, "-" * 35 + "\n")
+    history_text.config(state=tk.DISABLED)
 
 # Assuming the drumFolder is correctly set to where your .wav files are located
 drumFolder = '/Users/anitalarsen/Desktop/P4/500_Sounds'
 
-# image
-image = '/Users/anitalarsen/Desktop/P4/AnitaThings/fracNoise.png'
+image = '/Users/anitalarsen/Desktop/P4/AnitaThings/gradient-blur-pink-blue.png'
 
 features_list = []
 
@@ -58,8 +69,6 @@ for filename in os.listdir(drumFolder):
         y, sr = librosa.load(file_path)
 
         # Extract features
-        #spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr).mean()
-        #spectral_bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr).mean()
         spectral_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr).mean()
         zero_crossing_rate = librosa.feature.zero_crossing_rate(y).mean()
         rms_energy = librosa.feature.rms(y=y).mean()
@@ -69,8 +78,6 @@ for filename in os.listdir(drumFolder):
         # Store the features
         features_list.append({
             'Filename': filename,
-            #'Spectral Centroid': spectral_centroid,
-            #'Spectral Bandwidth': spectral_bandwidth,
             'Spectral Rolloff': spectral_rolloff,
             'Zero Crossing Rate': zero_crossing_rate,
             'RMS Energy': rms_energy,
@@ -98,51 +105,53 @@ print(f"Explained variance by component: {pca.explained_variance_ratio_}")
 
 # Create window
 window = tk.Tk()
-# window.geometry('800x600')
+#window.geometry('800x600')
 window.title("PCA Results")
 
-fig, ax = plt.subplots(figsize=(7,5))
+plot_frame = tk.Frame(window)
+plot_frame.pack(side=tk.LEFT, padx=10, pady=10)
+
+fig, ax = plt.subplots(figsize=(5,5))
 im = plt.imread(image)
-image_extent = [-2, 2, -2, 2]  # Define the extent of the image in data coordinates
-plt.imshow(im, zorder=2, extent=image_extent)  # Use extent parameter to adjust the size of the image
-scatter = ax.scatter(pca_results[:, 0], pca_results[:, 1], alpha=0.5,zorder=1)
-ax.set_title('PCA Results on Spread-Out Log-Transformed Features')
-ax.set_xlabel('PCA Component 1')
-ax.set_ylabel('PCA Component 2')
+image_extent = [-2, 2, -2, 2]
+plt.imshow(im, zorder=2, extent=image_extent)
+scatter = ax.scatter(pca_results[:, 0], pca_results[:, 1], alpha=0.5, zorder=1)
+ax.set_title('PCA Results on Spread-Out Log-Transformed Features\n')
+#ax.set_xlabel('PCA Component 1')
+#ax.set_ylabel('PCA Component 2')
 plt.xlim(-2, 2)
 plt.ylim(-2, 2)
 
-left_frame = tk.Frame(window)
-left_frame.pack(padx=10, pady=5, side=tk.LEFT)
+canvas = FigureCanvasTkAgg(fig, master=plot_frame)
+canvas.draw()
+canvas.get_tk_widget().pack()
 
 right_frame = tk.Frame(window)
-right_frame.pack(padx=10, pady=5, side=tk.RIGHT)
+right_frame.pack(side=tk.RIGHT, padx=10, pady=10)
 
-bottom_frame = tk.Frame(window)
-bottom_frame.pack(padx=10, pady=5, side=tk.BOTTOM, fill=tk.X)
+coords_label = tk.Label(right_frame, text="", justify='center')
+coords_label.pack()
 
-canvas = FigureCanvasTkAgg(fig, master=left_frame)
-canvas.draw()
-canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
-
-coords = tk.Label(bottom_frame, text="")
-coords.pack(side=tk.RIGHT)
-
-filename_label = tk.Label(bottom_frame, text="")
-filename_label.pack(side=tk.LEFT)
+filename_label = tk.Label(right_frame, text="", wraplength=300, justify='center')
+filename_label.pack()
 
 history_label = tk.Label(right_frame, text="History")
 history_label.pack()
 
-history_text = tk.Text(right_frame, height=30, width=20)
-history_text.pack(fill=tk.BOTH, expand=True)
+history_text = tk.Text(right_frame, height=26, width=35, state=tk.DISABLED)
+history_text.pack()
 
+MAX_HISTORY = 9
 history = []
+
+#bottom_frame = tk.Frame(window)
+#bottom_frame.pack(side=tk.BOTTOM, padx=10, pady=10)
 
 fig.canvas.mpl_connect('button_press_event', play_closest_sound)
 
 window.mainloop()
 
+#plt.show()
 
 # Accessing the loadings
 loadings = pca.components_
